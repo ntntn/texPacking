@@ -1,0 +1,167 @@
+import imagemin from 'imagemin';
+import imageminPngquant from 'imagemin-pngquant';
+import fs from 'fs'
+import path from "path"
+
+const root = ''
+
+function compressFolder(path)
+{
+	imagemin([ path + '/*.{jpg,png}' ], {
+		destination: 'build/' + path,
+		plugins: [
+			imageminPngquant()
+		]
+	});
+}
+
+function getAllFiles(dirPath, arrayOfFiles)
+{
+	const files = fs.readdirSync(dirPath)
+
+	arrayOfFiles = arrayOfFiles || []
+
+	files.forEach(function (file)
+	{
+		if (fs.statSync(dirPath + "/" + file).isDirectory())
+		{
+			arrayOfFiles = getAllFiles(dirPath + "/" + file, arrayOfFiles)
+		} else
+		{
+			arrayOfFiles.push(path.join(root, dirPath, "/", file))
+		}
+	})
+
+	return arrayOfFiles
+}
+
+function getAllDirectories(dirPath, directories)
+{
+	const files = fs.readdirSync(dirPath)
+
+	directories = directories || []
+
+	files.forEach(function (file)
+	{
+		if (fs.statSync(dirPath + "/" + file).isDirectory())
+		{
+			directories.push(path.join(root, dirPath, "/", file))
+			directories = getAllDirectories(dirPath + "/" + file, directories)
+		}
+	})
+
+	return directories
+}
+
+const directories = getAllDirectories('Assets');
+console.log('directories: ', directories);
+directories.forEach(e => {
+	// compressFolder('Assets/atlases/laser')
+	const folderPath = e.replace(/\\/g, "/");
+	console.log('COMPRESS FOLDER: ', folderPath);
+	compressFolder(folderPath);
+})
+
+
+
+async function compressFolderRecursive(path)
+{
+	console.log('PATH: ', path);
+	compressFolder(path)
+	let directoriesCount = 0;
+	let dir = fs.readdirSync(path);
+	console.log('dir: ', dir);
+	dir.forEach(e =>
+	{
+		console.log('e: ', e);
+		try
+		{
+			const realPath = fs.realpathSync(e);
+			console.log('realPath: ', realPath);
+			if (fs.lstatSync(realPath).isDirectory())
+			{
+				compressFolderRecursive(realPath);
+				directoriesCount += 1;
+			};
+		}
+		catch (e)
+		{
+			console.log(e);
+		}
+	});
+	console.log(directoriesCount);
+}
+
+function getFolders(path)
+{
+	const folders = [];
+	let dir = fs.readdirSync(path);
+	dir.forEach(fileName =>
+	{
+		const fullPath = path + fileName;
+		console.log(`fullPath: ${fullPath}`);
+		console.log(fs.lstatSync(fullPath).isDirectory());
+		if (fs.lstatSync(fullPath).isDirectory())
+		{
+			const folderPath = path + fileName;
+			folders.push(fullPath);
+		};
+	})
+
+	console.log('folders: ', folders);
+	return folders;
+}
+
+// const root = 'Assets/';
+// compressFolderRecursive(root);
+function getFoldersRecursive(path)
+{
+	const folders = [ getFolders(path) ];
+	// if (folders.length != 0) return this.getfol
+}
+
+import recursive from "recursive-readdir";
+
+// recursive(root, function (err, files) {
+//   // `files` is an array of file paths
+//   console.log(files);
+//   files.forEach(file => {
+// 	if (file.endsWith('.png') || file.endsWith('.jpg')) {
+// 	// if (fs.lstatSync(file).isDirectory()) {
+// 		imagemin([file], {
+// 			destination: 'build/' + file,
+// 			plugins: [
+// 				imageminPngquant() 
+// 			]
+// 		});	
+// 	}	
+//   })
+// });
+
+function ignoreFunc(file, stats)
+{
+	// `file` is the path to the file, and `stats` is an `fs.Stats`
+	// object returned from `fs.lstat()`.
+	return stats.isDirectory() === false;
+}
+
+function getDirectories(path)
+{
+	return fs.readdirSync(path).filter(function (file)
+	{
+		return fs.statSync(path + '/' + file).isDirectory();
+	});
+}
+
+
+// Ignore files named "foo.cs" and descendants of directories named test
+//   recursive(root, [ignoreFunc], function (err, files) {
+// 	console.log(files);
+//   });
+
+// const directories = getDirectories(root);
+// directories.forEach(dir => {
+// 	directories.push(...getDirectories(dir));
+// })
+// console.log(directories);
+

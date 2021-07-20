@@ -41,16 +41,21 @@ const options = {
 
 
 const directories = [
-    // './Attack10',
-    // './Attack145',
-    // './Attack190',
-    // './Attack1135',
-    // './Attack1180',
-    './Move0',
-    './Move45',
-    './Move90',
-    './Move135',
-    './Move180',
+    './Attack0',
+    './Attack45',
+    './Attack90',
+    './Attack135',
+    './Attack180',
+    // './Move0',
+    // './Move45',
+    // './Move90',
+    // './Move135',
+    // './Move180',
+    // './Idle0',
+    // './Idle45',
+    // './Idle90',
+    // './Idle135',
+    // './Idle180',
 ]
 
 let i = 0;
